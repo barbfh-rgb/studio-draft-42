@@ -277,6 +277,17 @@
     height: 100%;
   }
 
+  .card-number {
+    font-family: 'Gabriela', Georgia, serif;
+    font-size: 1.4rem;
+    text-align: center;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    color: var(--rose);
+    font-weight: 600;
+    line-height: 1;
+  }
+
   .card-phrase {
     font-family: 'Gabriela', Georgia, serif;
     font-size: 1.25rem;
@@ -664,6 +675,7 @@
     el.innerHTML = `
       ${label ? `<span class="card-label">${label}</span>` : ""}
       <div class="card-icon">${cardIconSVG(card)}</div>
+      <p class="card-number">${card.id}</p>
       <p class="card-phrase">${card.phrase}</p>
     `;
     return el;
