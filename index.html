@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Take a Beat with Barb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gabriela&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #bf9b30;
+    --cream: #FAF8F0;
+    --rose: #B76E79;
+    --ink: #3d2f00;
+    --ink-soft: rgba(61, 47, 0, 0.72);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  h1, h2 {
+    font-family: 'Gabriela', Georgia, serif;
+    font-weight: 400;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 2.9rem);
+    text-align: center;
+  }
+
+  .subtitle {
+    margin: 0.4rem 0 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+  }
+
+  .today-date {
+    margin: 0.3rem 0 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .moon-line {
+    margin: 0.15rem 0 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+
+  .seasonal-line {
+    margin: 0.15rem 0 0;
+    text-align: center;
+    color: var(--rose);
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+  }
+
+  .seasonal-line:empty {
+    display: none;
+  }
+
+  .mode-button.is-suggested::after {
+    content: " ✦";
+  }
+
+  .app-shell {
+    width: min(920px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .mode-row, .control-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 2px solid var(--gold);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.6rem 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    min-height: 44px;
+    transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+  }
+
+  button:hover {
+    background: rgba(191, 155, 48, 0.14);
+  }
+
+  button:active {
+    transform: translateY(1px);
+  }
+
+  .mode-button.is-active {
+    background: var(--gold);
+    color: var(--cream);
+  }
+
+  .mode-button[data-mode="liminal"].is-active {
+    background: var(--rose);
+    border-color: var(--rose);
+  }
+
+  .draw-button {
+    background: var(--gold);
+    color: var(--cream);
+    border-color: var(--gold);
+    font-size: 1.1rem;
+    padding: 0.7rem 1.8rem;
+  }
+
+  .draw-button:hover {
+    background: #a8842a;
+  }
+
+  .reset-button {
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+
+  .reset-button:hover {
+    background: rgba(183, 110, 121, 0.12);
+  }
+
+  .seed-details {
+    text-align: center;
+  }
+
+  .seed-details summary {
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    opacity: 0.45;
+    list-style: none;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .seed-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .seed-details summary:hover {
+    opacity: 0.8;
+  }
+
+  .seed-details .control-row {
+    margin-top: 0.75rem;
+  }
+
+  .seed-line {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  .seed-input {
+    font: inherit;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+    background: #fffdf3;
+    color: var(--ink);
+    width: 12rem;
+  }
+
+  .stage {
+    width: 100%;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .stage.is-liminal {
+    filter: saturate(0.85);
+  }
+
+  .card {
+    width: 220px;
+    max-width: 40vw;
+    aspect-ratio: 3 / 4;
+    border: 3px solid var(--gold);
+    border-radius: 20px;
+    background: #fffdf3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.2rem;
+    box-shadow: 0 18px 40px rgba(61, 47, 0, 0.12);
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  .card.is-revealed {
+    animation: reveal 650ms ease forwards;
+  }
+
+  @keyframes reveal {
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .card.is-liminal-card {
+    border-color: var(--rose);
+    box-shadow: 0 14px 34px rgba(183, 110, 121, 0.18);
+  }
+
+  .card-icon {
+    width: 88px;
+    height: 88px;
+    color: var(--gold);
+  }
+
+  .is-liminal-card .card-icon {
+    color: var(--rose);
+  }
+
+  .card-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .card-phrase {
+    font-family: 'Gabriela', Georgia, serif;
+    font-size: 1.25rem;
+    text-align: center;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  .card-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .bridge {
+    width: 90px;
+    max-width: 12vw;
+    height: 4px;
+    align-self: center;
+    border-radius: 4px;
+    background: linear-gradient(to right, transparent, var(--rose), transparent);
+    opacity: 0;
+  }
+
+  .bridge.is-revealed {
+    animation: bridgeReveal 900ms ease forwards;
+  }
+
+  @keyframes bridgeReveal {
+    to { opacity: 1; }
+  }
+
+  body.is-locked > *:not(.gate) {
+    display: none;
+  }
+
+  .gate {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: var(--cream);
+    align-items: center;
+    justify-content: center;
+  }
+
+  body.is-locked .gate {
+    display: flex;
+  }
+
+  .gate-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem 2.2rem;
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    background: #fffdf3;
+    box-shadow: 0 18px 40px rgba(61, 47, 0, 0.12);
+    width: min(90vw, 20rem);
+  }
+
+  .gate-label {
+    font-family: 'Gabriela', Georgia, serif;
+    font-size: 1.15rem;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .gate-input {
+    font: inherit;
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+    background: #fffdf3;
+    color: var(--ink);
+    text-align: center;
+  }
+
+  .gate-button {
+    width: 100%;
+  }
+
+  .gate-error {
+    margin: 0;
+    min-height: 1.2em;
+    color: var(--rose);
+    font-size: 0.85rem;
+  }
+
+  .flow-line {
+    font-family: 'Gabriela', Georgia, serif;
+    font-size: clamp(1.3rem, 3.4vw, 1.9rem);
+    text-align: center;
+    color: var(--ink);
+    max-width: 46rem;
+    min-height: 2.4em;
+    line-height: 1.5;
+  }
+
+  .stage.is-liminal ~ .flow-line,
+  .flow-line.is-liminal {
+    color: var(--rose);
+    font-style: italic;
+  }
+
+  .empty-state {
+    color: var(--ink-soft);
+    font-style: italic;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .card {
+      width: 42vw;
+    }
+  }
+</style>
+</head>
+<body class="is-locked">
+
+  <div class="gate" id="gate">
+    <form class="gate-box" id="gate-form">
+      <p class="gate-label">Enter passcode</p>
+      <input class="gate-input" id="gate-input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="gate-button" type="submit">Enter</button>
+      <p class="gate-error" id="gate-error"></p>
+    </form>
+  </div>
+
+  <h1>Take a Beat with Barb</h1>
+  <p class="subtitle">Join me for a moment</p>
+  <p class="today-date" id="today-date"></p>
+  <p class="moon-line" id="moon-line"></p>
+  <p class="seasonal-line" id="seasonal-line"></p>
+
+  <div class="app-shell">
+    <div class="mode-row" role="group" aria-label="Reading mode">
+      <button class="mode-button" type="button" data-mode="1">1 Card</button>
+      <button class="mode-button" type="button" data-mode="3">3 Cards</button>
+      <button class="mode-button" type="button" data-mode="5">5 Cards</button>
+      <button class="mode-button" type="button" data-mode="liminal">Liminal</button>
+    </div>
+
+    <div class="control-row">
+      <button class="draw-button" type="button" id="draw-btn">Draw</button>
+      <button class="reset-button" type="button" id="reset-btn">Clear</button>
+    </div>
+
+    <details class="seed-details">
+      <summary>⚙</summary>
+      <div class="control-row">
+        <input class="seed-input" type="text" id="seed-input" placeholder="Seed for a retake (optional)">
+      </div>
+      <p class="seed-line" id="seed-line">No draw yet.</p>
+    </details>
+
+    <div class="stage" id="stage"></div>
+
+    <p class="flow-line" id="flow-line"></p>
+  </div>
+
+<script>
+  // ---- passcode gate (casual privacy only, not real security) ---------
+
+  const GATE_PASSCODE = "succe$$";
+  const GATE_STORAGE_KEY = "take-a-beat-unlocked";
+
+  if (localStorage.getItem(GATE_STORAGE_KEY) === "yes") {
+    document.body.classList.remove("is-locked");
+  }
+
+  document.getElementById("gate-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("gate-input");
+    const error = document.getElementById("gate-error");
+    if (input.value === GATE_PASSCODE) {
+      localStorage.setItem(GATE_STORAGE_KEY, "yes");
+      document.body.classList.remove("is-locked");
+    } else {
+      error.textContent = "Not quite — try again.";
+      input.value = "";
+      input.focus();
+    }
+  });
+
+  // ---- deck data -----------------------------------------------------
+
+  const DECK = [
+    { id: 1, phrase: "Take a beat", icon: '<polyline points="10,50 30,50 40,25 55,75 65,50 90,50"/>' },
+    { id: 2, phrase: "Arrive here", icon: '<path d="M50 15 C 65 15 75 28 75 42 C 75 60 50 85 50 85 C 50 85 25 60 25 42 C 25 28 35 15 50 15 Z"/><circle cx="50" cy="42" r="10"/>' },
+    { id: 3, phrase: "Land softly", icon: '<path d="M50 15 L50 85"/><path d="M50 22 C 35 30 30 45 50 50"/><path d="M50 38 C 35 46 32 56 50 61"/><path d="M50 54 C 40 60 38 67 50 71"/>' },
+    { id: 4, phrase: "Come home", icon: '<path d="M20 55 L50 25 L80 55 L80 85 L20 85 Z"/><line x1="42" y1="85" x2="42" y2="62"/><line x1="58" y1="85" x2="58" y2="62"/>' },
+    { id: 5, phrase: "Notice this moment", icon: '<path d="M15 50 C 30 25 70 25 85 50 C 70 75 30 75 15 50 Z"/><circle cx="50" cy="50" r="10"/>' },
+    { id: 6, phrase: "Settle in", icon: '<line x1="50" y1="15" x2="50" y2="55"/><path d="M35 40 L50 55 L65 40"/><path d="M20 78 Q 50 90 80 78"/>' },
+    { id: 7, phrase: "Breathe fully", icon: '<circle cx="50" cy="50" r="16"/><circle cx="50" cy="50" r="32"/>' },
+    { id: 8, phrase: "Slow the breath", icon: '<path d="M10 50 Q 30 20 50 50 T 90 50"/>' },
+    { id: 9, phrase: "Exhale the day", icon: '<path d="M15 50 C 35 30 55 70 85 45"/>' },
+    { id: 10, phrase: "Fill your lungs", icon: '<path d="M50 20 L50 45"/><path d="M50 45 C 30 45 20 55 20 75 C 20 85 35 85 40 75 L45 45"/><path d="M50 45 C 70 45 80 55 80 75 C 80 85 65 85 60 75 L55 45"/>' },
+    { id: 11, phrase: "Breathe out the noise", icon: '<circle cx="50" cy="50" r="6" fill="currentColor" stroke="none"/><circle cx="72" cy="34" r="3" fill="currentColor" stroke="none"/><circle cx="76" cy="56" r="3" fill="currentColor" stroke="none"/><circle cx="66" cy="72" r="3" fill="currentColor" stroke="none"/><circle cx="28" cy="28" r="2" fill="currentColor" stroke="none" opacity="0.5"/>' },
+    { id: 12, phrase: "Rest in the pause", icon: '<line x1="20" y1="28" x2="20" y2="80"/><line x1="80" y1="28" x2="80" y2="80"/><path d="M20 45 Q 50 70 80 45"/>' },
+    { id: 13, phrase: "Soothe your soul", icon: '<path d="M50 78 C 20 58 25 30 45 35 C 48 36 50 40 50 40 C 50 40 52 36 55 35 C 75 30 80 58 50 78 Z"/>' },
+    { id: 14, phrase: "Ease the tension", icon: '<path d="M30 50 C 30 35 70 35 70 50 C 70 65 30 50 30 65"/>' },
+    { id: 15, phrase: "Unclench", icon: '<line x1="50" y1="85" x2="50" y2="35"/><line x1="36" y1="85" x2="30" y2="25"/><line x1="64" y1="85" x2="70" y2="25"/><line x1="22" y1="85" x2="14" y2="45"/><line x1="78" y1="85" x2="86" y2="45"/>' },
+    { id: 16, phrase: "Let it soften", icon: '<path d="M50 20 C 35 45 30 60 50 75 C 70 60 65 45 50 20 Z"/>' },
+    { id: 17, phrase: "Melt a little", icon: '<path d="M20 30 Q 50 30 50 50 Q 50 70 80 70"/>' },
+    { id: 18, phrase: "Soften your gaze", icon: '<path d="M15 55 Q 50 40 85 55"/><path d="M25 58 L25 63"/><path d="M42 60 L42 66"/><path d="M58 60 L58 66"/><path d="M75 58 L75 63"/>' },
+    { id: 19, phrase: "Let go", icon: '<path d="M50 20 C 65 20 70 35 60 45 C 50 55 35 50 35 35 C 35 25 42 20 50 20 Z"/><path d="M40 45 Q 30 60 45 75"/>' },
+    { id: 20, phrase: "Put it down", icon: '<line x1="50" y1="15" x2="50" y2="60"/><path d="M35 45 L50 60 L65 45"/><line x1="25" y1="78" x2="75" y2="78"/>' },
+    { id: 21, phrase: "Release the grip", icon: '<path d="M30 30 L30 70"/><path d="M40 25 L40 70"/><path d="M60 25 L60 70"/><path d="M70 30 L70 70"/><circle cx="50" cy="18" r="6" fill="currentColor" stroke="none"/>' },
+    { id: 22, phrase: "Set it aside", icon: '<rect x="18" y="40" width="20" height="20" rx="3"/><path d="M48 50 L80 50"/><path d="M70 40 L80 50 L70 60"/>' },
+    { id: 23, phrase: "Untangle", icon: '<path d="M58,50 a4,4 0 0,0 -8,0 a7,7 0 0,1 14,0 a11,11 0 0,0 -22,0 a15,15 0 0,1 30,0 a20,20 0 0,0 -40,0"/>' },
+    { id: 24, phrase: "Empty the cup", icon: '<path d="M25 40 L30 70 C 30 78 70 78 70 70 L75 40 Z"/><line x1="20" y1="40" x2="80" y2="40"/>' },
+    { id: 25, phrase: "Focus", icon: '<circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="16"/><circle cx="50" cy="50" r="4" fill="currentColor" stroke="none"/>' },
+    { id: 26, phrase: "Narrow to one thing", icon: '<path d="M20 20 L50 60 L80 20"/><line x1="50" y1="60" x2="50" y2="85"/>' },
+    { id: 27, phrase: "Choose this breath", icon: '<path d="M10 55 Q 30 35 50 55 T 90 55" opacity="0.35"/><circle cx="50" cy="55" r="6" fill="currentColor" stroke="none"/>' },
+    { id: 28, phrase: "Anchor here", icon: '<circle cx="50" cy="22" r="8"/><line x1="50" y1="30" x2="50" y2="85"/><line x1="30" y1="45" x2="70" y2="45"/><path d="M20 55 C 20 78 38 88 50 88 C 62 88 80 78 80 55"/>' },
+    { id: 29, phrase: "Return to now", icon: '<path d="M75 35 A 30 30 0 1 0 78 60"/><path d="M78 60 L88 55 M78 60 L70 52"/>' },
+    { id: 30, phrase: "Hold steady", icon: '<line x1="20" y1="50" x2="80" y2="50"/><line x1="50" y1="50" x2="50" y2="25"/><circle cx="50" cy="20" r="5" fill="currentColor" stroke="none"/><circle cx="25" cy="55" r="4"/><circle cx="75" cy="55" r="4"/>' },
+    { id: 31, phrase: "Explore", icon: '<circle cx="50" cy="50" r="32"/><path d="M62 38 L54 54 L38 62 L46 46 Z" fill="currentColor" stroke="none"/>' },
+    { id: 32, phrase: "Widen the view", icon: '<path d="M50 50 L20 20 M50 50 L80 20 M50 50 L20 80 M50 50 L80 80"/><circle cx="50" cy="50" r="8"/>' },
+    { id: 33, phrase: "Make space", icon: '<path d="M35 20 L20 20 L20 80 L35 80"/><path d="M65 20 L80 20 L80 80 L65 80"/>' },
+    { id: 34, phrase: "Welcome what comes", icon: '<rect x="30" y="15" width="40" height="70" rx="2"/><circle cx="60" cy="50" r="3" fill="currentColor" stroke="none"/>' },
+    { id: 35, phrase: "Open to receive", icon: '<path d="M15 55 C 25 70 40 72 50 60 C 60 72 75 70 85 55"/><path d="M15 55 C 15 45 22 40 28 45"/><path d="M85 55 C 85 45 78 40 72 45"/>' },
+    { id: 36, phrase: "Trust the unfolding", icon: '<path d="M50 85 C 50 60 30 60 30 40 C 30 25 45 20 55 30"/><circle cx="55" cy="30" r="4" fill="currentColor" stroke="none"/>' }
+  ];
+
+  // ---- deterministic seeded shuffle -----------------------------------
+
+  function hashStringToSeed(str) {
+    let h1 = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h1 = Math.imul(h1 ^ str.charCodeAt(i), 3432918353);
+      h1 = (h1 << 13) | (h1 >>> 19);
+    }
+    return function () {
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+      h1 = Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      h1 ^= h1 >>> 16;
+      return h1 >>> 0;
+    };
+  }
+
+  function mulberry32(seedInt) {
+    let a = seedInt;
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seededShuffle(array, seedString) {
+    const seedFn = hashStringToSeed(String(seedString));
+    const rng = mulberry32(seedFn());
+    const result = array.slice();
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  function newSeed() {
+    return `${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
+  }
+
+  // ---- moon phase -> suggested mode ------------------------------------
+  // New Moon -> 1 Card, Waxing/First Quarter -> 3 Cards,
+  // Full Moon -> 5 Cards, Waning/Last Quarter -> Liminal.
+
+  function getMoonPhaseFraction(date) {
+    const synodicMonth = 29.53058867;
+    const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14, 0);
+    const diffDays = (date.getTime() - knownNewMoon) / 86400000;
+    let phase = (diffDays % synodicMonth) / synodicMonth;
+    if (phase < 0) phase += 1;
+    return phase;
+  }
+
+  function moonPhaseInfo(phase) {
+    const phases = [
+      { max: 0.03, name: "New Moon", emoji: "🌑" },
+      { max: 0.22, name: "Waxing Crescent", emoji: "🌒" },
+      { max: 0.28, name: "First Quarter", emoji: "🌓" },
+      { max: 0.47, name: "Waxing Gibbous", emoji: "🌔" },
+      { max: 0.53, name: "Full Moon", emoji: "🌕" },
+      { max: 0.72, name: "Waning Gibbous", emoji: "🌖" },
+      { max: 0.78, name: "Last Quarter", emoji: "🌗" },
+      { max: 0.97, name: "Waning Crescent", emoji: "🌘" },
+      { max: 1.01, name: "New Moon", emoji: "🌑" }
+    ];
+    return phases.find((p) => phase <= p.max);
+  }
+
+  function suggestedModeForPhase(phase) {
+    if (phase < 0.25) return "1";
+    if (phase < 0.5) return "3";
+    if (phase < 0.75) return "5";
+    return "liminal";
+  }
+
+  // ---- seasonal wheel (extracted from Barbara's own wheel diagram) ------
+  // Month is 0-indexed (0 = January) to match JS Date conventions.
+
+  const SEASONAL_MARKERS = [
+    { name: "Yule / Winter Solstice", month: 11, day: 21 },
+    { name: "Imbolc", month: 1, day: 1 },
+    { name: "Spring Equinox", month: 2, day: 20 },
+    { name: "Beltane", month: 4, day: 1 },
+    { name: "Midsummer Solstice", month: 5, day: 21 },
+    { name: "Lughnasadh", month: 7, day: 1 },
+    { name: "Autumn Equinox", month: 8, day: 22 },
+    { name: "Samhain", month: 9, day: 31 }
+  ];
+
+  function findSeasonalWeek(date) {
+    const oneDay = 86400000;
+    for (const marker of SEASONAL_MARKERS) {
+      // check the marker date in the previous, current and next year so
+      // dates near 31 Dec / 1 Jan still match correctly across the boundary
+      for (const yearOffset of [-1, 0, 1]) {
+        const markerDate = new Date(date.getFullYear() + yearOffset, marker.month, marker.day);
+        const diffDays = Math.abs((date - markerDate) / oneDay);
+        if (diffDays <= 7) {
+          return marker.name;
+        }
+      }
+    }
+    return null;
+  }
+
+  // ---- state -----------------------------------------------------------
+
+  const moonPhase = getMoonPhaseFraction(new Date());
+  const moonInfo = moonPhaseInfo(moonPhase);
+  const seasonalWeek = findSeasonalWeek(new Date());
+  let mode = suggestedModeForPhase(moonPhase);
+
+  const modeButtons = Array.from(document.querySelectorAll(".mode-button"));
+  const stage = document.getElementById("stage");
+  const flowLine = document.getElementById("flow-line");
+  const seedInput = document.getElementById("seed-input");
+  const seedLine = document.getElementById("seed-line");
+
+  document.getElementById("today-date").textContent = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+
+  document.getElementById("moon-line").textContent = `${moonInfo.emoji} ${moonInfo.name}`;
+
+  if (seasonalWeek) {
+    document.getElementById("seasonal-line").textContent = `✦ ${seasonalWeek} week`;
+  }
+
+  modeButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mode === mode);
+    button.classList.toggle("is-suggested", button.dataset.mode === mode);
+    button.addEventListener("click", () => {
+      mode = button.dataset.mode;
+      modeButtons.forEach((b) => b.classList.toggle("is-active", b === button));
+      resetStage();
+    });
+  });
+
+  function cardIconSVG(card) {
+    return `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">${card.icon}</svg>`;
+  }
+
+  function buildCardEl(card, label, extraClass) {
+    const el = document.createElement("div");
+    el.className = "card" + (extraClass ? ` ${extraClass}` : "");
+    el.innerHTML = `
+      ${label ? `<span class="card-label">${label}</span>` : ""}
+      <div class="card-icon">${cardIconSVG(card)}</div>
+      <p class="card-phrase">${card.phrase}</p>
+    `;
+    return el;
+  }
+
+  function revealAll(stageEl) {
+    requestAnimationFrame(() => {
+      stageEl.querySelectorAll(".card, .bridge").forEach((el, i) => {
+        setTimeout(() => el.classList.add("is-revealed"), i * 180);
+      });
+    });
+  }
+
+  function resetStage() {
+    stage.className = "stage";
+    stage.innerHTML = "";
+    flowLine.textContent = "";
+    flowLine.classList.remove("is-liminal");
+    seedLine.textContent = "No draw yet.";
+  }
+
+  function draw() {
+    const seed = seedInput.value.trim() || newSeed();
+    seedInput.value = seed;
+    seedLine.textContent = `Seed: ${seed} — save this to redraw the exact same reading later.`;
+
+    stage.innerHTML = "";
+    flowLine.textContent = "";
+    flowLine.classList.remove("is-liminal");
+    stage.classList.remove("is-liminal");
+
+    if (mode === "liminal") {
+      const ids = seededShuffle(DECK.map((c) => c.id), seed).slice(0, 2);
+      const leaving = DECK.find((c) => c.id === ids[0]);
+      const arriving = DECK.find((c) => c.id === ids[1]);
+
+      stage.classList.add("is-liminal");
+      const leavingCard = buildCardEl(leaving, null, "is-liminal-card");
+      const bridge = document.createElement("div");
+      bridge.className = "bridge";
+      const arrivingCard = buildCardEl(arriving, null, "is-liminal-card");
+
+      stage.append(leavingCard, bridge, arrivingCard);
+      revealAll(stage);
+
+      flowLine.classList.add("is-liminal");
+      flowLine.textContent = `${leaving.phrase}… and ${arriving.phrase.charAt(0).toLowerCase()}${arriving.phrase.slice(1)}.`;
+      return;
+    }
+
+    const count = Number(mode);
+    const ids = seededShuffle(DECK.map((c) => c.id), seed).slice(0, count);
+    const cards = ids.map((id) => DECK.find((c) => c.id === id));
+
+    cards.forEach((card) => stage.append(buildCardEl(card)));
+    revealAll(stage);
+
+    if (count === 1) {
+      flowLine.textContent = cards[0].phrase + ".";
+    } else {
+      flowLine.textContent = cards.map((c) => c.phrase).join(". ") + ".";
+    }
+  }
+
+  document.getElementById("draw-btn").addEventListener("click", draw);
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    seedInput.value = "";
+    resetStage();
+  });
+</script>
+</body>
+</html>
